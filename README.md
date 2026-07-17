@@ -42,6 +42,9 @@ governed REST API — the same chokepoint every other client goes through.
 ## Install
 
 ```bash
+# One-liner (detects OS/arch, verifies checksum)
+curl -fsSL https://raw.githubusercontent.com/villadalmine/leloir-cli/main/install.sh | sh
+
 # Go (needs Go 1.26+)
 go install github.com/villadalmine/leloir-cli/cmd/leloir@latest
 
