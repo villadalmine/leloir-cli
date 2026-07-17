@@ -5,6 +5,11 @@ release (binarios multi-plataforma + imagen OCI firmada). La fuente del CLI se
 mantiene en el backend (leloir-core/cmd/leloir) y se vendoriza acá con
 `make sync`; `make release-check` garantiza que no haya drift antes de tagear.
 
+## v0.3.0 — 2026-07-17
+
+- **Shell completions** — `leloir completion bash|zsh|fish` emite el script de completado
+  (comandos + subcomandos + flags globales). Instalación en el README.
+
 ## v0.2.0 — 2026-07-16
 
 - **Color en el output** — el stream de `investigate --follow` y las tablas salen coloreados,

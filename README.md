@@ -51,6 +51,14 @@ docker run --rm ghcr.io/villadalmine/leloir-cli:latest version
 # Or grab a prebuilt binary from the Releases page and put it on your PATH.
 ```
 
+**Shell completions** (tab-complete commands + subcommands):
+
+```bash
+leloir completion bash > /etc/bash_completion.d/leloir      # bash
+leloir completion zsh  > "${fpath[1]}/_leloir"              # zsh
+leloir completion fish > ~/.config/fish/completions/leloir.fish
+```
+
 ## Quickstart
 
 ```bash
@@ -148,6 +156,10 @@ leloir --json usage    | jq '.usd_used'
 | 1 | API / network error |
 | 2 | Usage error (bad flags) |
 | 3 | `--follow` ended with an outcome other than `success` |
+
+**Color** is on when writing to a terminal and off when piped or scripted — so `--json`
+and `| jq` stay clean. Disable it with `NO_COLOR=1`; force it (e.g. into `less -R`) with
+`LELOIR_FORCE_COLOR=1`.
 
 ## Architecture
 

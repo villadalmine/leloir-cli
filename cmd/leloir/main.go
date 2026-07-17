@@ -33,6 +33,7 @@ Comandos:
   llm-credentials        identidad LLM del tenant: endpoint + ref al Secret de la key
   audit                  eventos de auditoría (--investigation, --type, --limit)
   config                 view | use-context <name> | set-context <name> ...
+  completion             script de completado para bash | zsh | fish
   version                versión del CLI + salud del server
 
 Flags globales (antes o después del comando):
@@ -90,6 +91,8 @@ func run(args []string) int {
 		return cmdLLMCredentials(c)
 	case "audit":
 		return cmdAudit(c, sub)
+	case "completion":
+		return cmdCompletion(sub)
 	default:
 		fmt.Fprintf(os.Stderr, "error: comando desconocido %q\n\n%s", cmd, rootUsage)
 		return 2
