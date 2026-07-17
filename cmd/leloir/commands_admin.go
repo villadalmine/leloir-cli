@@ -25,9 +25,9 @@ func cmdAgents(c *client, args []string) int {
 		if c.emitJSON(body) {
 			return 0
 		}
-		printRow(pad("NAME", 20), pad("TENANT", 14), pad("VERSION", 10), "HEALTH")
+		header(pad("NAME", 20), pad("TENANT", 14), pad("VERSION", 10), "HEALTH")
 		for _, a := range agents {
-			printRow(pad(a.Name, 20), pad(a.TenantID, 14), pad(a.Version, 10), a.Health)
+			printRow(pad(a.Name, 20), pad(a.TenantID, 14), pad(a.Version, 10), col(statusCode(a.Health), a.Health))
 		}
 		return 0
 	}
@@ -64,7 +64,7 @@ func cmdRoutes(c *client, args []string) int {
 	if c.emitJSON(body) {
 		return 0
 	}
-	printRow(pad("NAME", 20), pad("TENANT", 14), pad("AGENT", 16), pad("HEALTH", 10), pad("BUDGET", 16), "MATCH")
+	header(pad("NAME", 20), pad("TENANT", 14), pad("AGENT", 16), pad("HEALTH", 10), pad("BUDGET", 16), "MATCH")
 	for _, r := range routes {
 		match := "todos"
 		if len(r.MatchLabels) > 0 {
@@ -72,7 +72,8 @@ func cmdRoutes(c *client, args []string) int {
 			match = trunc(string(m), 40)
 		}
 		budget := fmt.Sprintf("$%.2f/%dk tok", r.BudgetMaxUSD, r.BudgetMaxTokens/1000)
-		printRow(pad(r.Name, 20), pad(r.TenantID, 14), pad(r.AgentName, 16), pad(r.AgentHealth, 10), pad(budget, 16), match)
+		printRow(pad(r.Name, 20), pad(r.TenantID, 14), pad(r.AgentName, 16),
+			col(statusCode(r.AgentHealth), pad(r.AgentHealth, 10)), pad(budget, 16), match)
 	}
 	return 0
 }
@@ -133,8 +134,8 @@ func cmdAPIKeys(c *client, args []string) int {
 			Key  string `json:"key"`
 		}
 		_ = json.Unmarshal(body, &k)
-		fmt.Printf("id:   %s\nrole: %s\nkey:  %s\n\n", k.ID, k.Role, k.Key)
-		fmt.Println("⚠ esta key se muestra UNA sola vez — guardala ya:")
+		fmt.Printf("id:   %s\nrole: %s\nkey:  %s\n\n", k.ID, k.Role, col(cAnswer, k.Key))
+		fmt.Println(col(cWarn, "⚠ esta key se muestra UNA sola vez — guardala ya:"))
 		fmt.Printf("  leloir config set-context <nombre> --server %s --api-key %s\n", c.server, k.Key)
 		return 0
 
@@ -157,7 +158,7 @@ func cmdAPIKeys(c *client, args []string) int {
 		if c.emitJSON(body) {
 			return 0
 		}
-		printRow(pad("ID", 18), pad("NAME", 16), pad("ROLE", 8), pad("RPM", 6), pad("STATE", 8), "LAST USED")
+		header(pad("ID", 18), pad("NAME", 16), pad("ROLE", 8), pad("RPM", 6), pad("STATE", 8), "LAST USED")
 		for _, k := range page.Items {
 			state := "active"
 			if k.RevokedAt != nil {
@@ -171,7 +172,8 @@ func cmdAPIKeys(c *client, args []string) int {
 			if k.RatePerMin > 0 {
 				rpm = fmt.Sprintf("%d", k.RatePerMin)
 			}
-			printRow(pad(k.ID, 18), pad(k.Name, 16), pad(k.Role, 8), pad(rpm, 6), pad(state, 8), last)
+			printRow(pad(k.ID, 18), pad(k.Name, 16), pad(k.Role, 8), pad(rpm, 6),
+				col(statusCode(state), pad(state, 8)), last)
 		}
 		return 0
 
@@ -235,14 +237,16 @@ func quota(used, max int64) string {
 	if max <= 0 {
 		return fmt.Sprintf("%d (sin límite)", used)
 	}
-	return fmt.Sprintf("%d / %d (%.1f%%)", used, max, float64(used)/float64(max)*100)
+	return col(pctColor(float64(used), float64(max)),
+		fmt.Sprintf("%d / %d (%.1f%%)", used, max, float64(used)/float64(max)*100))
 }
 
 func quotaF(used, max float64) string {
 	if max <= 0 {
 		return fmt.Sprintf("$%.4f (sin límite)", used)
 	}
-	return fmt.Sprintf("$%.4f / $%.2f (%.1f%%)", used, max, used/max*100)
+	return col(pctColor(used, max),
+		fmt.Sprintf("$%.4f / $%.2f (%.1f%%)", used, max, used/max*100))
 }
 
 // ─── leloir audit ─────────────────────────────────────────────────────────────

@@ -178,9 +178,11 @@ func cmdInvList(c *client, args []string) int {
 	if c.emitJSON(body) {
 		return 0
 	}
-	printRow(pad("ID", 26), pad("STATUS", 10), pad("OUTCOME", 12), pad("AGENT", 14), pad("TOKENS", 8), "STARTED")
+	header(pad("ID", 26), pad("STATUS", 10), pad("OUTCOME", 12), pad("AGENT", 14), pad("TOKENS", 8), "STARTED")
 	for _, inv := range page.Items {
-		printRow(pad(inv.ID, 26), pad(inv.Status, 10), pad(inv.Outcome, 12),
+		printRow(pad(inv.ID, 26),
+			col(statusCode(inv.Status), pad(inv.Status, 10)),
+			col(statusCode(inv.Outcome), pad(inv.Outcome, 12)),
 			pad(inv.AgentName, 14), pad(fmt.Sprintf("%d", inv.TotalTokens), 8), trunc(inv.Started, 19))
 	}
 	fmt.Printf("(%d de %d)%s\n", len(page.Items), page.Total, map[bool]string{true: " — hay más: --offset", false: ""}[page.HasMore])
@@ -275,11 +277,11 @@ func renderEvent(invID, typ string, raw json.RawMessage, jsonOut bool) (bool, in
 	case "thought":
 		var p struct{ Content string }
 		get(&p)
-		line = "◷ thought    " + trunc(p.Content, 100)
+		line = col(cThought, "◷ thought    ") + trunc(p.Content, 100)
 	case "progress":
 		var p struct{ Message string }
 		get(&p)
-		line = "◷ progress   " + trunc(p.Message, 100)
+		line = col(cThought, "◷ progress   ") + trunc(p.Message, 100)
 	case "tool.request":
 		var p struct {
 			ToolName string
@@ -287,7 +289,7 @@ func renderEvent(invID, typ string, raw json.RawMessage, jsonOut bool) (bool, in
 		}
 		get(&p)
 		args, _ := json.Marshal(p.Args)
-		line = "⚒ tool       " + p.ToolName + " " + trunc(string(args), 80)
+		line = col(cTool, "⚒ tool       ") + p.ToolName + " " + col(cDim, trunc(string(args), 80))
 	case "tool.response":
 		var p struct {
 			Success    bool
@@ -296,9 +298,9 @@ func renderEvent(invID, typ string, raw json.RawMessage, jsonOut bool) (bool, in
 		}
 		get(&p)
 		if p.Success {
-			line = fmt.Sprintf("✓ tool       ok (%dms)", p.DurationMS)
+			line = col(cOk, fmt.Sprintf("✓ tool       ok (%dms)", p.DurationMS))
 		} else {
-			line = "✗ tool       " + trunc(p.Error, 90)
+			line = col(cErr, "✗ tool       "+trunc(p.Error, 90))
 		}
 	case "llm.call":
 		var p struct {
@@ -306,25 +308,25 @@ func renderEvent(invID, typ string, raw json.RawMessage, jsonOut bool) (bool, in
 			CostUSD                   float64
 		}
 		get(&p)
-		line = fmt.Sprintf("$ llm.call   in=%d out=%d $%.4f", p.InputTokens, p.OutputTokens, p.CostUSD)
+		line = col(cCost, fmt.Sprintf("$ llm.call   in=%d out=%d $%.4f", p.InputTokens, p.OutputTokens, p.CostUSD))
 	case "budget.warning":
 		var p struct {
 			Resource    string
 			UsedPercent float64
 		}
 		get(&p)
-		line = fmt.Sprintf("! budget     %s %.0f%% usado", p.Resource, p.UsedPercent*100)
+		line = col(cWarn, fmt.Sprintf("! budget     %s %.0f%% usado", p.Resource, p.UsedPercent*100))
 	case "approval.request":
 		var p struct{ Action, Rationale string }
 		get(&p)
-		line = fmt.Sprintf("? approval   PENDIENTE: %s — aprobá con: leloir inv approve %s", p.Action, invID)
+		line = col(cAppr, fmt.Sprintf("? approval   PENDIENTE: %s — aprobá con: leloir inv approve %s", p.Action, invID))
 	case "error":
 		var p struct {
 			Code, Message string
 			Recoverable   bool
 		}
 		get(&p)
-		line = fmt.Sprintf("✗ error      [%s] %s", p.Code, trunc(p.Message, 90))
+		line = col(cErr, fmt.Sprintf("✗ error      [%s] %s", p.Code, trunc(p.Message, 90)))
 	case "answer":
 		var p struct {
 			Summary, RootCause, Recommendation string
@@ -332,9 +334,9 @@ func renderEvent(invID, typ string, raw json.RawMessage, jsonOut bool) (bool, in
 		}
 		get(&p)
 		if !jsonOut {
-			fmt.Printf("★ answer     [%.2f]\n", p.Confidence)
-			printBlock("  causa raíz:    ", p.RootCause)
-			printBlock("  recomendación: ", p.Recommendation)
+			fmt.Println(col(cAnswer, fmt.Sprintf("★ answer     [%.2f]", p.Confidence)))
+			printBlock(col(cDim, "  causa raíz:    "), p.RootCause)
+			printBlock(col(cDim, "  recomendación: "), p.Recommendation)
 		}
 		return false, 0
 	case "complete":
@@ -350,14 +352,18 @@ func renderEvent(invID, typ string, raw json.RawMessage, jsonOut bool) (bool, in
 			if p.Reason != "" {
 				line += " (" + p.Reason + ")"
 			}
-			fmt.Println(line)
+			code := cOk
+			if p.Outcome != "success" {
+				code = cErr
+			}
+			fmt.Println(col(code, line))
 		}
 		if p.Outcome == "success" {
 			return true, 0
 		}
 		return true, 3
 	default:
-		line = "· " + typ
+		line = col(cDim, "· "+typ)
 	}
 	if line != "" && !jsonOut {
 		fmt.Println(line)

@@ -5,6 +5,14 @@ release (binarios multi-plataforma + imagen OCI firmada). La fuente del CLI se
 mantiene en el backend (leloir-core/cmd/leloir) y se vendoriza acá con
 `make sync`; `make release-check` garantiza que no haya drift antes de tagear.
 
+## v0.2.0 — 2026-07-16
+
+- **Color en el output** — el stream de `investigate --follow` y las tablas salen coloreados,
+  con la misma paleta que la doc/mockup (◷ thought · ⚒ tool · ✓ ok · $ llm.call · ! budget ·
+  ? approval · ★ answer · ■ complete). Status/outcome/health por semántica, `usage` con % en
+  verde/ámbar/rojo. Color sólo si stdout es TTY + `NO_COLOR` unset + `--json` off (piped queda
+  plano). Pure stdlib, `LELOIR_FORCE_COLOR=1` para forzar. 4 tests nuevos.
+
 ## v0.1.0 — 2026-07-16
 
 Primer corte público del CLI, extraído del monorepo (leloir-core/cmd/leloir).
