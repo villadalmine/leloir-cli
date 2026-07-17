@@ -6,3 +6,14 @@
 # Directivas de agente / dev — LOCALES, no se publican (convención del repo privado)
 /CLAUDE.md
 /.agents/
+
+# Entornos y binarios estándar
+/bin/
+/vendor/
+coverage.out
+*.exe
+
+# IDEs y OS (evitar leak de configuraciones locales)
+.idea/
+.vscode/
+.DS_Store
