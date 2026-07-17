@@ -34,11 +34,29 @@ jobs:
           done
           ( cd dist && sha256sum leloir-* > SHA256SUMS )
           ls -la dist
+      # Notas del release = la sección del CHANGELOG para este tag (features técnicas,
+      # NO la lista de commits). Así el release cuenta QUÉ mejoró, no quién lo hizo.
+      - name: Notas del release desde el CHANGELOG
+        run: |
+          VER="${GITHUB_REF_NAME}"
+          awk -v v="$VER" '
+            $0 ~ "^## " v " " {f=1; next}
+            /^## v[0-9]/ {f=0}
+            f {print}
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          # Si el CHANGELOG no tuviera la sección, dejamos un fallback mínimo (no vacío).
+          [ -s RELEASE_NOTES.md ] || echo "Release ${VER}. Ver CHANGELOG.md." > RELEASE_NOTES.md
+          {
+            echo ""
+            echo "---"
+            echo "**Install:** \`curl -fsSL https://raw.githubusercontent.com/villadalmine/leloir-cli/main/install.sh | sh\`  ·  image \`ghcr.io/villadalmine/leloir-cli:${VER}\` (multi-arch, signed with cosign keyless)."
+          } >> RELEASE_NOTES.md
+          echo "=== release notes ==="; cat RELEASE_NOTES.md
       - name: Publish GitHub Release with binaries
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
-          generate_release_notes: true
+          body_path: RELEASE_NOTES.md
 
   image:
     runs-on: ubuntu-latest

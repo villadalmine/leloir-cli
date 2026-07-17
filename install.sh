@@ -58,10 +58,12 @@ fi
 # ── instalar ─────────────────────────────────────────────────────────────────
 chmod +x "$tmp/$BIN"
 dir="${LELOIR_BIN_DIR:-/usr/local/bin}"
-if [ ! -w "$dir" ] && [ -z "${LELOIR_BIN_DIR:-}" ]; then
-  dir="$HOME/.local/bin"; mkdir -p "$dir"
+# Si el destino por defecto no es escribible (y el user no forzó uno), caé a ~/.local/bin.
+if [ -z "${LELOIR_BIN_DIR:-}" ] && [ ! -w "$dir" ]; then
+  dir="$HOME/.local/bin"
 fi
-mv "$tmp/$BIN" "$dir/$BIN" || err "no pude escribir en $dir (probá con sudo o seteá LELOIR_BIN_DIR)"
+mkdir -p "$dir" 2>/dev/null || true
+mv "$tmp/$BIN" "$dir/$BIN" || err "no pude escribir en $dir (probá con sudo o seteá LELOIR_BIN_DIR a un dir escribible)"
 echo "leloir-install: instalado en $dir/$BIN"
 case ":$PATH:" in *":$dir:"*) ;; *) echo "leloir-install: agregá $dir a tu PATH" ;; esac
 "$dir/$BIN" version 2>/dev/null | head -1 || true
