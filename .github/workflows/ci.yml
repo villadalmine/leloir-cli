@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - name: go vet
+        run: go vet ./...
+      - name: build (version from VERSION file)
+        run: |
+          go build -trimpath -ldflags "-s -w -X main.version=$(cat VERSION)" -o leloir ./cmd/leloir
+          ./leloir version || true   # no server → health unreachable, pero el binario corre
+      - name: test
+        run: go test -race ./...
+      # check-sync corre pero HACE SKIP acá (el repo privado leloir-core no está montado en
+      # el CI público). El drift real se caza en local/pre-release con ambos repos hermanos.
+      - name: check-sync (skip si no está el canónico)
+        run: bash scripts/sync-from-core.sh --check

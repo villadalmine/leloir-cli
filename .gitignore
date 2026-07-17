@@ -1,0 +1,8 @@
+/leloir
+/dist/
+*.test
+.env
+
+# Directivas de agente / dev — LOCALES, no se publican (convención del repo privado)
+/CLAUDE.md
+/.agents/
