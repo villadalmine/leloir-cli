@@ -29,14 +29,14 @@ func detectColor() bool {
 // 256-color codes, tuned to the same palette as the web mockup.
 const (
 	cReset   = "\033[0m"
-	cDim     = "\033[38;5;244m" // muted grey — secondary text
-	cThought = "\033[38;5;74m"  // steel blue — reasoning
-	cTool    = "\033[38;5;179m" // amber — a tool call
-	cOk      = "\033[38;5;72m"  // green — success
-	cErr     = "\033[38;5;167m" // soft red — failure
-	cCost    = "\033[38;5;140m" // violet — llm cost
-	cWarn    = "\033[38;5;179m" // amber — budget warning
-	cAppr    = "\033[38;5;175m" // pink — approval gate
+	cDim     = "\033[38;5;244m"   // muted grey — secondary text
+	cThought = "\033[38;5;74m"    // steel blue — reasoning
+	cTool    = "\033[38;5;179m"   // amber — a tool call
+	cOk      = "\033[38;5;72m"    // green — success
+	cErr     = "\033[38;5;167m"   // soft red — failure
+	cCost    = "\033[38;5;140m"   // violet — llm cost
+	cWarn    = "\033[38;5;179m"   // amber — budget warning
+	cAppr    = "\033[38;5;175m"   // pink — approval gate
 	cAnswer  = "\033[1;38;5;179m" // bold amber — the answer / star
 	cBold    = "\033[1m"
 )
@@ -54,11 +54,11 @@ func col(code, s string) string {
 // the PADDING happens before the codes and columns stay aligned.
 func statusCode(s string) string {
 	switch s {
-	case "success", "completed", "healthy", "active", "ok":
+	case "success", "completed", "healthy", "active", "ok", "on_track":
 		return cOk
-	case "running", "pending", "degraded":
+	case "running", "pending", "degraded", "no_limit":
 		return cWarn
-	case "cancelled", "failed", "error", "unhealthy", "off-radar", "revoked":
+	case "cancelled", "failed", "error", "unhealthy", "off-radar", "revoked", "will_exceed", "already_exceeded":
 		return cErr
 	}
 	return ""

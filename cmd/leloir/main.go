@@ -29,7 +29,7 @@ Comandos:
   routes                 list
   mcp-servers            list
   apikeys                create | list | revoke <id>
-  usage                  metering del tenant (tokens/USD/investigaciones vs budget)
+  usage                  metering del tenant (vs budget) | projection (burn-rate honesto)
   llm-credentials        identidad LLM del tenant: endpoint + ref al Secret de la key
   audit                  eventos de auditoría (--investigation, --type, --limit)
   metrics                summary (headline del tenant) | trends [<metric>]

@@ -26,6 +26,7 @@ _leloir() {
     apikeys)     COMPREPLY=( $(compgen -W "create list revoke" -- "$cur") ) ;;
     metrics)     COMPREPLY=( $(compgen -W "summary trends" -- "$cur") ) ;;
     compliance)  COMPREPLY=( $(compgen -W "evidence bundle" -- "$cur") ) ;;
+    usage)       COMPREPLY=( $(compgen -W "projection" -- "$cur") ) ;;
     config)      COMPREPLY=( $(compgen -W "view use-context set-context" -- "$cur") ) ;;
     completion)  COMPREPLY=( $(compgen -W "bash zsh fish" -- "$cur") ) ;;
     *)           COMPREPLY=( $(compgen -W "$gflags" -- "$cur") ) ;;
@@ -48,6 +49,7 @@ _leloir() {
     apikeys)    compadd create list revoke ;;
     metrics)    compadd summary trends ;;
     compliance) compadd evidence bundle ;;
+    usage)      compadd projection ;;
     config)     compadd view use-context set-context ;;
     completion) compadd bash zsh fish ;;
   esac

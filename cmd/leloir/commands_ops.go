@@ -111,6 +111,39 @@ func metricsTrends(c *client, args []string) int {
 	return 0
 }
 
+// cmdUsageProjection prints `leloir usage projection` — an HONEST linear burn-rate
+// extrapolation (not a prediction; the `note` says so). Reached via cmdUsage.
+func cmdUsageProjection(c *client) int {
+	var p struct {
+		DaysElapsed  float64 `json:"days_elapsed"`
+		DaysInMonth  int     `json:"days_in_month"`
+		DailyBurnUSD float64 `json:"daily_burn_usd"`
+		ProjectedUSD float64 `json:"projected_usd"`
+		BudgetUSD    float64 `json:"budget_usd"`
+		ProjectedPct float64 `json:"projected_pct_of_budget"`
+		Status       string  `json:"status"`
+		Method       string  `json:"method"`
+	}
+	body, err := c.getJSON("/usage/projection", &p)
+	if err != nil {
+		return fail(err)
+	}
+	if c.emitJSON(body) {
+		return 0
+	}
+	fmt.Printf("días:        %.1f de %d\n", p.DaysElapsed, p.DaysInMonth)
+	fmt.Printf("ritmo:       $%.4f/día\n", p.DailyBurnUSD)
+	if p.BudgetUSD > 0 {
+		fmt.Printf("proyección:  %s\n", col(pctColor(p.ProjectedUSD, p.BudgetUSD),
+			fmt.Sprintf("$%.4f (%.0f%% del budget $%.2f)", p.ProjectedUSD, p.ProjectedPct, p.BudgetUSD)))
+	} else {
+		fmt.Printf("proyección:  $%.4f (sin límite)\n", p.ProjectedUSD)
+	}
+	fmt.Printf("estado:      %s\n", col(statusCode(p.Status), p.Status))
+	fmt.Printf("nota:        %s\n", p.Method)
+	return 0
+}
+
 // ─── leloir roi ───────────────────────────────────────────────────────────────
 
 func cmdROI(c *client, args []string) int {

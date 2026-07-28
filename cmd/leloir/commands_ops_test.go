@@ -44,6 +44,11 @@ func TestOpsCommands(t *testing.T) {
 	mux.HandleFunc("/api/v1/approvals", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`[]`))
 	})
+	mux.HandleFunc("/api/v1/usage/projection", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"tenant":"acme","days_elapsed":10,"days_in_month":31,"daily_burn_usd":0.5,` +
+			`"projected_usd":15.5,"budget_usd":10,"projected_pct_of_budget":155,"status":"will_exceed",` +
+			`"method":"extrapolación lineal — NO es una predicción"}`))
+	})
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 
@@ -59,6 +64,7 @@ func TestOpsCommands(t *testing.T) {
 		{"compliance", "bundle", "--framework", "EU-DORA"},
 		{"quarantine"},
 		{"approvals"},
+		{"usage", "projection"},          // burn-rate projection
 		{"--json", "metrics", "summary"}, // raw-JSON path
 	}
 	for _, args := range cases {

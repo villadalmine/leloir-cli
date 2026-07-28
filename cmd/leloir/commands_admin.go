@@ -201,6 +201,9 @@ func cmdAPIKeys(c *client, args []string) int {
 // ─── leloir usage ─────────────────────────────────────────────────────────────
 
 func cmdUsage(c *client, args []string) int {
+	if len(args) > 0 && args[0] == "projection" {
+		return cmdUsageProjection(c)
+	}
 	var u struct {
 		TenantID           string  `json:"tenant_id"`
 		PeriodStart        *string `json:"period_start"`
