@@ -32,6 +32,13 @@ Comandos:
   usage                  metering del tenant (tokens/USD/investigaciones vs budget)
   llm-credentials        identidad LLM del tenant: endpoint + ref al Secret de la key
   audit                  eventos de auditoría (--investigation, --type, --limit)
+  metrics                summary (headline del tenant) | trends [<metric>]
+  roi                    outcome/ROI del tenant (--days N)
+  compliance             evidence | bundle (--framework) — evidencia de auditoría del audit WORM
+  capabilities           qué gobierna el motor (grafo ∩ cluster vivo)
+  approvals              inbox HITL (gates pendientes; aprobá con 'inv approve')
+  quarantine             tenants aislados por comportamiento anómalo
+  license                scorecard open-core (tier + features; el motor es 100% libre)
   config                 view | use-context <name> | set-context <name> ...
   completion             script de completado para bash | zsh | fish
   version                versión del CLI + salud del server
@@ -91,6 +98,20 @@ func run(args []string) int {
 		return cmdLLMCredentials(c)
 	case "audit":
 		return cmdAudit(c, sub)
+	case "metrics":
+		return cmdMetrics(c, sub)
+	case "roi":
+		return cmdROI(c, sub)
+	case "license":
+		return cmdLicense(c)
+	case "capabilities", "caps":
+		return cmdCapabilities(c)
+	case "compliance":
+		return cmdCompliance(c, sub)
+	case "quarantine":
+		return cmdQuarantine(c)
+	case "approvals":
+		return cmdApprovals(c)
 	case "completion":
 		return cmdCompletion(sub)
 	default:

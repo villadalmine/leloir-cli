@@ -15,7 +15,7 @@ import (
 const compBash = `# bash completion for leloir
 _leloir() {
   local cur="${COMP_WORDS[COMP_CWORD]}"
-  local commands="help version config investigate inv agents routes mcp-servers apikeys usage llm-credentials audit completion"
+  local commands="help version config investigate inv agents routes mcp-servers apikeys usage llm-credentials audit metrics roi compliance capabilities approvals quarantine license completion"
   local gflags="--context --server --api-key --json"
   if [ "$COMP_CWORD" -eq 1 ]; then
     COMPREPLY=( $(compgen -W "$commands $gflags" -- "$cur") ); return
@@ -24,6 +24,8 @@ _leloir() {
     inv)         COMPREPLY=( $(compgen -W "list get stream cancel approve reject" -- "$cur") ) ;;
     agents)      COMPREPLY=( $(compgen -W "list get" -- "$cur") ) ;;
     apikeys)     COMPREPLY=( $(compgen -W "create list revoke" -- "$cur") ) ;;
+    metrics)     COMPREPLY=( $(compgen -W "summary trends" -- "$cur") ) ;;
+    compliance)  COMPREPLY=( $(compgen -W "evidence bundle" -- "$cur") ) ;;
     config)      COMPREPLY=( $(compgen -W "view use-context set-context" -- "$cur") ) ;;
     completion)  COMPREPLY=( $(compgen -W "bash zsh fish" -- "$cur") ) ;;
     *)           COMPREPLY=( $(compgen -W "$gflags" -- "$cur") ) ;;
@@ -35,7 +37,7 @@ complete -F _leloir leloir
 const compZsh = `#compdef leloir
 _leloir() {
   local -a commands
-  commands=(help version config investigate inv agents routes mcp-servers apikeys usage llm-credentials audit completion)
+  commands=(help version config investigate inv agents routes mcp-servers apikeys usage llm-credentials audit metrics roi compliance capabilities approvals quarantine license completion)
   if (( CURRENT == 2 )); then
     _describe 'command' commands
     return
@@ -44,6 +46,8 @@ _leloir() {
     inv)        compadd list get stream cancel approve reject ;;
     agents)     compadd list get ;;
     apikeys)    compadd create list revoke ;;
+    metrics)    compadd summary trends ;;
+    compliance) compadd evidence bundle ;;
     config)     compadd view use-context set-context ;;
     completion) compadd bash zsh fish ;;
   esac
